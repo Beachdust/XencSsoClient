@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.alibaba.fastjson.JSON;
-import com.zte.sso.cons.SSOCons;
 import com.zte.sso.httputil.HttpClientSSLUtil;
 import com.zte.sso.httputil.HttpResult;
 import com.zte.sso.pojo.SsoAccessToken;
@@ -85,7 +84,7 @@ public class SsoFilter implements Filter {
 	private boolean isLogin(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 		String requestCookieToken = SsoCookieUtil.getRequestToken(httpServletRequest);
 		String refreshedToken = TokenCache.getRefreshedToken(requestCookieToken);
-		Cookie tokenCookie = new Cookie(SSOCons.COOKIE_TOKEN, refreshedToken);
+		Cookie tokenCookie = new Cookie(SSOParams.COOKIE_TOKEN_KEY, refreshedToken);
 		httpServletResponse.addCookie(tokenCookie);
 		return refreshedToken != null;
 	}
@@ -96,8 +95,8 @@ public class SsoFilter implements Filter {
 	private void addCookieAndRedirectHomePage(HttpServletResponse httpServletResponse, HttpServletRequest httpServletRequest,
 			SsoAccessToken tokenReponse) throws IOException {
 		String token = tokenReponse.getRefreshToken();
-		Cookie tokenCookie = new Cookie(SSOCons.COOKIE_TOKEN, token);
-		Cookie userCookie = new Cookie(SSOCons.COOKIE_USERNAME, tokenReponse.getUsername());
+		Cookie tokenCookie = new Cookie(SSOParams.COOKIE_TOKEN_KEY, token);
+		Cookie userCookie = new Cookie(SSOParams.COOKIE_USERNAME_KEY, tokenReponse.getUsername());
 		TokenCache.addToken(token);
 		httpServletResponse.addCookie(tokenCookie);
 		httpServletResponse.addCookie(userCookie);
@@ -151,13 +150,26 @@ public class SsoFilter implements Filter {
 		SSOParams.CLIENT_SECRET = config.getInitParameter("CLIENT_SECRET");
 		SSOParams.LOCALHOST = config.getInitParameter("LOCALHOST");
 		SSOParams.SSO_URL = config.getInitParameter("SSO_URL");
-		SSOParams.INTERFACE_CLASS_NAME = config.getInitParameter("INTERFACE_CLASS_NAME");
+		// 用户下发同步实现类
+		setSsoParam(SSOParams.INTERFACE_CLASS_NAME, config, "INTERFACE_CLASS_NAME");
+		// 登录了以后重定向的页面地址
 		SSOParams.HOME_PAGE = config.getInitParameter("HOME_PAGE");
 		SSOParams.SSO_CALL_PATH_ROOT = config.getInitParameter("SSO_CALL_PATH_ROOT");
 		SSOParams.SSO_LOGOUT = config.getInitParameter("SSO_LOGOUT");
-		SSOParams.SSO_SYNC_ALL = config.getInitParameter("SSO_SYNC_ALL");
-		SSOParams.SSO_SYNC_ORG = config.getInitParameter("SSO_SYNC_ORG");
 		SSOParams.SSO_SYNC_USER = config.getInitParameter("SSO_SYNC_USER");
+		setSsoParam(SSOParams.SSO_SYNC_ALL, config, "SSO_SYNC_ALL");
+		setSsoParam(SSOParams.SSO_SYNC_ORG, config, "SSO_SYNC_ORG");
+		// 自定义token在cookie中的key，以免冲突,默认为access_token
+		setSsoParam(SSOParams.COOKIE_TOKEN_KEY, config, "COOKIE_TOKEN_KEY");
+		// 自定义username在cookie中的key，以免冲突,默认为username
+		setSsoParam(SSOParams.COOKIE_USERNAME_KEY, config, "COOKIE_USERNAME_KEY");
+	}
+
+	private void setSsoParam(String param, FilterConfig config, String key) {
+		String initParameter = config.getInitParameter(key);
+		if (initParameter != null && !"".equals(initParameter.trim())) {
+			param = initParameter;
+		}
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package com.zte.sso;
 
 public class SSOParams {
+	public static String COOKIE_TOKEN_KEY = "access_token";
+	public static String COOKIE_USERNAME_KEY = "username";
 	public static String HOME_PAGE = "/SSOEDMO_HOMEPAGE/";
 	public static String CLIENT_ID = "01d06b5461400f6fdfd5b70a056924d4";
 	public static String CLIENT_SECRET = "9edf9df67b286bc4a473f3604c95ea5b";

@@ -4,18 +4,18 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import com.zte.sso.cons.SSOCons;
+import com.zte.sso.SSOParams;
 
 public class SsoCookieUtil {
 	private SsoCookieUtil() {
 	}
 
 	public static String getRequestToken(ServletRequest request) {
-		return getRequestCookieValueByName(request, SSOCons.COOKIE_TOKEN);
+		return getRequestCookieValueByName(request, SSOParams.COOKIE_TOKEN_KEY);
 	}
 
 	public static String getRequestUserName(ServletRequest request) {
-		return getRequestCookieValueByName(request, SSOCons.COOKIE_USERNAME);
+		return getRequestCookieValueByName(request, SSOParams.COOKIE_USERNAME_KEY);
 	}
 
 	private static String getRequestCookieValueByName(ServletRequest request, String cookieName) {
