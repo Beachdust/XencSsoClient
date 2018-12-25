@@ -1,2 +1,2 @@
 *.class
-./SsoClientPlugin/bin/
+SsoClientPlugin/bin/
